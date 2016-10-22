@@ -12,7 +12,7 @@
 
 Name:           %{?scl_prefix}%{project}-framework
 Version:        4.2.1
-Release:        9%{?dist}
+Release:        7%{?dist}
 Summary:        Apache Felix Framework
 
 Group:          Development/Libraries
@@ -22,12 +22,14 @@ Source0:        http://www.apache.org/dist/%{project}/%{bundle}-%{version}-sourc
 
 BuildArch:      noarch
 
-BuildRequires: maven30-felix-osgi-compendium
-BuildRequires: maven30-felix-osgi-core
-BuildRequires: maven30-maven-local
-BuildRequires: maven30-maven-surefire-plugin
-BuildRequires: maven30-apache-rat-plugin
-BuildRequires: maven30-felix-parent
+BuildRequires: java-devel >= 1:1.6.0
+BuildRequires: jpackage-utils
+BuildRequires: %{?scl_prefix}felix-osgi-compendium
+BuildRequires: %{?scl_prefix}felix-osgi-core
+BuildRequires: maven-local
+BuildRequires: maven-surefire-provider-junit4
+BuildRequires: apache-rat-plugin
+BuildRequires: felix-parent
 
 %{?scl:Requires: %scl_runtime}
 
@@ -42,43 +44,31 @@ Summary:        Javadoc for %{name}
 API documentation for %{name}.
 
 %prep
-%{?scl:scl enable maven30 %{scl} - << "EOF"}
+%{?scl:scl enable %{scl} - << "EOF"}
 %setup -q -n %{bundle}-%{version}
 
 %mvn_file : %{project}/%{bundle}
 %{?scl:EOF}
 
 %build
-%{?scl:scl enable maven30 %{scl} - << "EOF"}
+%{?scl:scl enable %{scl} - << "EOF"}
 # skip tests; needs easymock
 %mvn_build -f
 %{?scl:EOF}
 
 %install
-%{?scl:scl enable maven30 %{scl} - << "EOF"}
+%{?scl:scl enable %{scl} - << "EOF"}
 %mvn_install
-# Own the felix directory in order to avoid it sticking
-# around after removal
-install -d -m 755 %{buildroot}%{_javadir}/felix
 %{?scl:EOF}
 
 %files -f .mfiles
-%doc LICENSE NOTICE
-# Own the felix directory in order to avoid it sticking
-# around after removal
 %dir %{_javadir}/felix
+%doc LICENSE NOTICE
 
 %files javadoc -f .mfiles-javadoc
 %doc LICENSE NOTICE
 
 %changelog
-* Fri Jun 20 2014 Severin Gehwolf <sgehwolf@redhat.com> - 4.2.1-9
-- Own felix directory in scl.
-- Use osgi-core and osgi-compendium from maven30 collection.
-
-* Tue Jun 17 2014 Severin Gehwolf <sgehwolf@redhat.com> - 4.2.1-8
-- Rebuild against maven30 collection.
-
 * Fri Jan 24 2014 Severin Gehwolf <sgehwolf@redhat.com> - 4.2.1-7
 - Own felix directory in scl.
 - Resolves: RHBZ#1057169
